@@ -1,0 +1,2 @@
+-- Student TODO: Create index for faster login lookups
+-- Write: CREATE INDEX idx_users_username ON users(username);

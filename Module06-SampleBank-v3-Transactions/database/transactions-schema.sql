@@ -1,0 +1,10 @@
+-- Student TODO: Create transactions table
+-- Fields needed:
+-- transaction_id SERIAL PRIMARY KEY
+-- from_user_id INT NOT NULL REFERENCES users(user_id)
+-- to_user_id INT NOT NULL REFERENCES users(user_id)
+-- amount DECIMAL(12,2) NOT NULL CHECK (amount > 0)
+-- created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+-- Constraint: CHECK (from_user_id != to_user_id)
+-- Indexes: CREATE INDEX idx_transactions_from ON transactions(from_user_id);
+--          CREATE INDEX idx_transactions_to ON transactions(to_user_id);

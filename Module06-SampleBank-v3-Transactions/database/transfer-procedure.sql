@@ -1,0 +1,28 @@
+-- Student TODO: Create transfer_money() function
+--
+-- This function should:
+-- 1. Look up sender by username, get user_id and balance
+-- 2. Return 'ERROR: Sender not found' if not found
+-- 3. Check if sender has enough balance
+-- 4. Return 'ERROR: Insufficient balance' if not enough
+-- 5. Look up receiver by username
+-- 6. Return 'ERROR: Receiver not found' if not found
+-- 7. Deduct amount from sender's balance
+-- 8. Add amount to receiver's balance
+-- 9. Insert record into transactions table
+-- 10. Return 'SUCCESS: Transferred $X from sender to receiver'
+--
+-- Function signature:
+-- CREATE OR REPLACE FUNCTION transfer_money(
+--     p_from_username VARCHAR,
+--     p_to_username VARCHAR,
+--     p_amount DECIMAL
+-- ) RETURNS TEXT AS $$
+-- DECLARE
+--     v_from_user_id INT;
+--     v_to_user_id INT;
+--     v_from_balance DECIMAL;
+-- BEGIN
+--     -- Your code here
+-- END;
+-- $$ LANGUAGE plpgsql;

@@ -1,0 +1,189 @@
+===============================================================
+SampleBank Week 3 - Transactions & Money Transfer
+===============================================================
+
+This update includes TWO phases:
+  Phase A: Transaction Tracking (Entity & Repository)
+  Phase B: Money Transfer (Controller, UI, Stored Procedure)
+
+===============================================================
+PHASE A: TRANSACTION TRACKING
+===============================================================
+
+NEW FILES:
+---------------------------
++ entity/Transaction.java        - Transaction entity class
++ repository/TransactionRepository.java - JPA repository
++ database/transactions-schema.sql      (BLANK - you write this)
+
+INSTALLATION:
+---------------------------
+1. Copy Transaction.java to:
+   src/main/java/com/samplebank/entity/
+
+2. Copy TransactionRepository.java to:
+   src/main/java/com/samplebank/repository/
+
+3. Complete database/transactions-schema.sql
+
+STUDENT TASKS - PHASE A:
+---------------------------
+[ ] 1. Merge Transaction.java into entity folder
+[ ] 2. Merge TransactionRepository.java into repository folder
+[ ] 3. Write CREATE TABLE transactions in transactions-schema.sql:
+       - transaction_id SERIAL PRIMARY KEY
+       - from_user_id INT NOT NULL REFERENCES users(user_id)
+       - to_user_id INT NOT NULL REFERENCES users(user_id)
+       - amount DECIMAL(12,2) NOT NULL CHECK (amount > 0)
+       - created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+       - CHECK (from_user_id != to_user_id)
+[ ] 4. Create indexes:
+       - CREATE INDEX idx_transactions_from ON transactions(from_user_id);
+       - CREATE INDEX idx_transactions_to ON transactions(to_user_id);
+[ ] 5. Run schema in PostgreSQL
+[ ] 6. Test constraints work correctly
+
+===============================================================
+PHASE B: MONEY TRANSFER FUNCTIONALITY
+===============================================================
+
+NEW FILES:
+---------------------------
++ controller/TransferController.java - Transfer & balance endpoints
++ static/dashboard.html              - User dashboard with transfer form
++ static/login.html (UPDATED)        - Now redirects to dashboard
++ database/transfer-procedure.sql    (BLANK - you write this)
+
+INSTALLATION:
+---------------------------
+1. Copy TransferController.java to:
+   src/main/java/com/samplebank/controller/
+
+2. Copy dashboard.html to:
+   src/main/resources/static/
+
+3. REPLACE login.html in:
+   src/main/resources/static/
+
+4. Complete database/transfer-procedure.sql
+
+STUDENT TASKS - PHASE B:
+---------------------------
+[ ] 1. Merge TransferController.java into controller folder
+[ ] 2. Add dashboard.html to static folder
+[ ] 3. Replace login.html (now redirects to dashboard after login)
+[ ] 4. Write transfer_money() function in transfer-procedure.sql:
+       - Accept: p_from_username, p_to_username, p_amount
+       - Validate sender exists
+       - Check sufficient balance
+       - Validate receiver exists
+       - Update both balances
+       - Insert transaction record
+       - Return success/error message
+[ ] 5. Run procedure in PostgreSQL
+[ ] 6. Test complete flow: Register -> Login -> Transfer
+
+===============================================================
+API ENDPOINTS AFTER WEEK 3
+===============================================================
+POST /register           - Register new user (Week 1)
+POST /login              - Login user (Week 2)
+POST /transfer           - Transfer money (Week 3 - NEW)
+GET  /balance/{username} - Check balance (Week 3 - NEW)
+
+===============================================================
+TEST YOUR IMPLEMENTATION
+===============================================================
+
+1. Create two test users:
+   curl -X POST http://localhost:8080/register \
+     -H "Content-Type: application/json" \
+     -d '{"username":"alice","email":"alice@test.com","password":"pass123"}'
+
+   curl -X POST http://localhost:8080/register \
+     -H "Content-Type: application/json" \
+     -d '{"username":"bob","email":"bob@test.com","password":"pass456"}'
+
+2. Check balances:
+   curl http://localhost:8080/balance/alice
+   curl http://localhost:8080/balance/bob
+
+3. Transfer money:
+   curl -X POST http://localhost:8080/transfer \
+     -H "Content-Type: application/json" \
+     -d '{"fromUsername":"alice","toUsername":"bob","amount":"250.00"}'
+
+4. Verify balances changed:
+   curl http://localhost:8080/balance/alice  (should be $750.00)
+   curl http://localhost:8080/balance/bob    (should be $1250.00)
+
+5. Verify transaction recorded:
+   psql -U postgres -d samplebank -c "SELECT * FROM transactions;"
+
+===============================================================
+PROJECT STRUCTURE AFTER WEEK 3
+===============================================================
+src/main/java/com/samplebank/
+├── SampleBankApplication.java
+├── entity/
+│   ├── User.java              (Week 1)
+│   └── Transaction.java       (Week 3 - NEW)
+├── repository/
+│   ├── UserRepository.java    (Week 1)
+│   └── TransactionRepository.java (Week 3 - NEW)
+└── controller/
+    ├── UserController.java    (Week 1)
+    ├── AuthController.java    (Week 2)
+    └── TransferController.java (Week 3 - NEW)
+
+src/main/resources/static/
+├── index.html                 (Week 1)
+├── login.html                 (Week 2, UPDATED Week 3)
+└── dashboard.html             (Week 3 - NEW)
+
+database/
+├── schema.sql                 (Week 1)
+├── login-index.sql            (Week 2)
+├── transactions-schema.sql    (Week 3 - NEW)
+└── transfer-procedure.sql     (Week 3 - NEW)
+
+===============================================================
+USER FLOW AFTER WEEK 3
+===============================================================
+Register (index.html)
+    |
+    v
+Login (login.html)
+    |
+    v
+Dashboard (dashboard.html)
+    - View balance
+    - Transfer money
+    - Logout
+    |
+    v
+Back to Login
+
+===============================================================
+
+
+
+
+● Done. SampleBank-v3-UPDATE now includes both phases.                
+                                                                        SampleBank-v3-UPDATE/
+  ├── TODO-Week3.txt                              (Combined tasks for 
+  both phases)
+  ├── database/                                                         │   ├── transactions-schema.sql                 (BLANK - Phase A)
+  │   └── transfer-procedure.sql                  (BLANK - Phase B)   
+  └── src/main/java/com/samplebank/      
+      ├── entity/
+      │   └── Transaction.java                    (Phase A)
+      ├── repository/
+      │   └── TransactionRepository.java          (Phase A)
+      ├── controller/
+      │   └── TransferController.java             (Phase B)
+      └── resources/static/
+          ├── login.html                          (UPDATED - redirects
+   to dashboard)
+          └── dashboard.html                      (NEW - balance +    
+  transfer + logout)

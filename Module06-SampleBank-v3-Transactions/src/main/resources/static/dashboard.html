@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SampleBank - Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .header {
+            max-width: 600px;
+            margin: 0 auto 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        .header h1 {
+            color: #1a1a2e;
+            font-size: 24px;
+        }
+        .header .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .header .username {
+            color: #4a69bd;
+            font-weight: bold;
+        }
+        .logout-btn {
+            padding: 8px 20px;
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+        .logout-btn:hover {
+            background: #c82333;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .card {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+            margin-bottom: 20px;
+        }
+        .balance-card {
+            text-align: center;
+            background: linear-gradient(135deg, #4a69bd 0%, #3c5aa6 100%);
+            color: white;
+        }
+        .balance-card h2 {
+            font-size: 16px;
+            opacity: 0.9;
+            margin-bottom: 10px;
+        }
+        .balance-card .balance {
+            font-size: 42px;
+            font-weight: bold;
+        }
+        .balance-card .refresh-btn {
+            margin-top: 15px;
+            padding: 8px 20px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+        .balance-card .refresh-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        .card h2 {
+            color: #1a1a2e;
+            margin-bottom: 20px;
+            font-size: 20px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+            font-weight: bold;
+        }
+        input[type="text"],
+        input[type="number"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        input:focus {
+            outline: none;
+            border-color: #4a69bd;
+        }
+        button[type="submit"] {
+            width: 100%;
+            padding: 12px;
+            background: #4a69bd;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        button[type="submit"]:hover {
+            background: #3c5aa6;
+        }
+        .message {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            text-align: center;
+            display: none;
+        }
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+            display: block;
+        }
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>SampleBank</h1>
+        <div class="user-info">
+            <span>Welcome, <span id="displayUsername" class="username"></span></span>
+            <button class="logout-btn" onclick="logout()">Logout</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="card balance-card">
+            <h2>Your Balance</h2>
+            <div id="balanceDisplay" class="balance">$0.00</div>
+            <button class="refresh-btn" onclick="loadBalance()">Refresh</button>
+        </div>
+
+        <div class="card">
+            <h2>Transfer Money</h2>
+            <form id="transferForm">
+                <div class="form-group">
+                    <label for="toUsername">Recipient Username</label>
+                    <input type="text" id="toUsername" name="toUsername" required placeholder="Enter recipient username">
+                </div>
+                <div class="form-group">
+                    <label for="amount">Amount ($)</label>
+                    <input type="number" id="amount" name="amount" step="0.01" min="0.01" required placeholder="0.00">
+                </div>
+                <button type="submit">Send Money</button>
+            </form>
+            <div id="transferMessage" class="message"></div>
+        </div>
+    </div>
+
+    <script>
+        const username = sessionStorage.getItem('username');
+
+        // Check if logged in
+        if (!username) {
+            window.location.href = 'login.html';
+        }
+
+        // Display username
+        document.getElementById('displayUsername').textContent = username;
+
+        // Load balance on page load
+        loadBalance();
+
+        async function loadBalance() {
+            try {
+                const response = await fetch('/balance/' + encodeURIComponent(username));
+                const result = await response.text();
+
+                if (response.ok) {
+                    // Extract balance from response like "Balance for alice: $1500.00"
+                    const match = result.match(/\$[\d,]+\.?\d*/);
+                    if (match) {
+                        document.getElementById('balanceDisplay').textContent = match[0];
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading balance:', error);
+            }
+        }
+
+        document.getElementById('transferForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const toUsername = document.getElementById('toUsername').value;
+            const amount = document.getElementById('amount').value;
+            const messageDiv = document.getElementById('transferMessage');
+
+            try {
+                const response = await fetch('/transfer', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        fromUsername: username,
+                        toUsername: toUsername,
+                        amount: amount
+                    })
+                });
+
+                const result = await response.text();
+
+                if (result.startsWith('SUCCESS')) {
+                    messageDiv.className = 'message success';
+                    document.getElementById('transferForm').reset();
+                    loadBalance(); // Refresh balance after transfer
+                } else {
+                    messageDiv.className = 'message error';
+                }
+                messageDiv.textContent = result;
+            } catch (error) {
+                messageDiv.className = 'message error';
+                messageDiv.textContent = 'Connection error. Please try again.';
+            }
+        });
+
+        function logout() {
+            sessionStorage.clear();
+            window.location.href = 'login.html';
+        }
+    </script>
+</body>
+</html>

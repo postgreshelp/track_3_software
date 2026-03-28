@@ -1,0 +1,41 @@
+===============================================================
+SampleBank Week 2 - Login Functionality
+===============================================================
+
+NEW FILES IN THIS PACKAGE:
+---------------------------
++ AuthController.java      - Login endpoint (/login)
++ login.html               - Login form page
++ index.html (UPDATED)     - Added login link
++ database/login-index.sql (BLANK - you write this)
+
+INSTALLATION:
+---------------------------
+1. Copy AuthController.java to:
+   src/main/java/com/samplebank/controller/
+
+2. Copy login.html to:
+   src/main/resources/static/
+
+3. REPLACE index.html in:
+   src/main/resources/static/
+
+4. Run login-index.sql in PostgreSQL (after you complete it)
+
+STUDENT TASK:
+---------------------------
+Complete database/login-index.sql:
+- Create an index on username column for faster login lookups
+
+API ENDPOINTS AFTER UPDATE:
+---------------------------
+POST /register  - Register new user (Week 1)
+POST /login     - Login user (Week 2 - NEW)
+
+TEST LOGIN:
+---------------------------
+curl -X POST http://localhost:8080/login \
+  -H "Content-Type: application/json" \
+  -d "{\"username\":\"testuser\",\"password\":\"testpass\"}"
+
+===============================================================
